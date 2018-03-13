@@ -2,7 +2,10 @@
   "author": "nanw1103",
   "dependencies": {
     "vsphere": "^1.0.0",
-    "otherlib": "^1.0.0"
+    "otherlib": "^1.0.0",
+	"dedup-async": "^0.0.3",
+	"stream-buffers": "^3.0.1",
+	"request": "^2.83.0"
   },
   "description": "Easy wrapper for vCenter operations",
   "devDependencies": {},
@@ -11,7 +14,7 @@
   "main": "index.js",
   "name": "easyvc",
   "optionalDependencies": {},
-  "version": "0.0.1",
+  "version": "0.0.5",
   "scripts": {
     "test": "mocha"
   },
