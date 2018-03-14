@@ -2,7 +2,7 @@
 
 const FileManager = require('./FileManager.js')
 const ProcessManager = require('./ProcessManager.js')
-const { delay, retry } = require('otherlib')
+const { retry } = require('otherlib')
 
 class GuestManager {
 	constructor (vm, user, password, options) {
@@ -59,43 +59,6 @@ class GuestManager {
 			retry: 5,
 			intervalMs: 10000
 		})
-	}
-
-	async shutdown(timeoutMs) {
-	}
-
-	/**
-	 * [reboot reboot the vm]
-	 * @param  {[Number]} timeoutMs
-	 * @return {[promise]}
-	 */
-	async reboot(timeoutMs) {
-		
-		timeoutMs = timeoutMs ? timeoutMs : 5 * 60 * 1000
-		let cmd = 'C:\\Windows\\System32\\shutdown.exe'
-		let args = '/s /t 15'
-		let exitCode = await this.process().runAndWait(cmd, args, null, null, timeoutMs)
-		if (exitCode !== 0) {
-			console.log('reboot vm script ret ', exitCode)
-			return Promise.reject(exitCode)
-		}
-
-		//wait
-		await delay(30000)
-
-		//get ip
-
-		let vmIP = await this.vm.getIPAddress()
-		/*
-		const checkReboot = require('launchpad-commonlib').checkReboot
-
-		return new Promise((resolve, reject) => {
-			setTimeout(() => checkReboot.waitConnect(vmIP)
-				.then(resolve)
-				.catch(reject),
-			timeoutMs)
-		})
-		*/
 	}
 }
 

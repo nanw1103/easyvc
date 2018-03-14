@@ -77,7 +77,6 @@ class BaseMob {
 		})
 
 		return retry(impl, {
-			//retry: 5,
 			filter: e => e !== 'error',
 			timeoutMs: timeoutMs,
 			intervalMs: 10000,

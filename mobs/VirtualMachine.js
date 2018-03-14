@@ -9,7 +9,7 @@ class VirtualMachine extends BaseMob {
 	//////////////////////////////////////////////////////////////////////////////////
 	//	Power operations
 	//////////////////////////////////////////////////////////////////////////////////
-	async powerOn(timeoutMs, noWait) {
+	async powerOn(timeoutMs) {
 		let vim = this._service.vim
 		let current = await this.get('runtime.powerState')
 		if (current === vim.VirtualMachinePowerState.poweredOn.toString())
@@ -18,14 +18,14 @@ class VirtualMachine extends BaseMob {
 		let vimPort = this._service.vimPort
 		let taskMor = await vimPort.powerOnVMTask(this.mor)
 		let task = mob(this._service, taskMor)
-		await task.waitState('info.state', vim.TaskInfoState.success.toString(), timeoutMs)
+		await task.waitState('info.state', vim.TaskInfoState.success.toString(), 30 * 1000)
 
-		if (noWait)
-			return		
+		if (timeoutMs === undefined)
+			return
 		return this.waitPowerOn(timeoutMs)
 	}
 
-	async powerOff(timeoutMs, noWait) {
+	async powerOff(timeoutMs) {
 		let vim = this._service.vim
 		let current = await this.get('runtime.powerState')
 		if (current === vim.VirtualMachinePowerState.poweredOff.toString())
@@ -34,26 +34,56 @@ class VirtualMachine extends BaseMob {
 		let vimPort = this._service.vimPort
 		let taskMor = await vimPort.powerOffVMTask(this.mor)
 		let task = mob(this._service, taskMor)
-		await task.waitState('info.state', vim.TaskInfoState.success.toString(), timeoutMs)
+		await task.waitState('info.state', vim.TaskInfoState.success.toString(), 30 * 1000)
 
-		if (noWait)
-			return		
+		if (timeoutMs === undefined)
+			return
 		return this.waitPowerOff(timeoutMs)
-	}
-
-	async waitPowerOn(timeoutMs) {
-		let vim = this._service.vim
-		return this.waitState('runtime.powerState', vim.VirtualMachinePowerState.poweredOn.toString(), timeoutMs)
-	}
-
-	async waitPowerOff(timeoutMs) {
-		let vim = this._service.vim
-		return this.waitState('runtime.powerState', vim.VirtualMachinePowerState.poweredOff.toString(), timeoutMs)
 	}
 
 	async isPowerOff() {
 		let stat = await this.get('runtime.powerState')
 		return stat === this._service.vim.VirtualMachinePowerState.poweredOff.toString()
+	}
+
+	async waitPowerOn(timeoutMs) {
+		return this.waitState('runtime.powerState', this._service.vim.VirtualMachinePowerState.poweredOn.toString(), timeoutMs)
+	}
+	async waitPowerOff(timeoutMs) {
+		return this.waitState('runtime.powerState', this._service.vim.VirtualMachinePowerState.poweredOff.toString(), timeoutMs)
+	}
+
+	async shutdownGuest(timeoutMs) {
+		let vim = this._service.vim
+		let current = await this.get('runtime.powerState')
+		if (current === vim.VirtualMachinePowerState.poweredOff.toString())
+			return
+
+		await this.waitForVmTools(10 * 1000)
+		await this._service.vimPort.shutdownGuest(this.mor)
+
+		if (timeoutMs === undefined)
+			return
+		
+		return this.waitPowerOff(timeoutMs)
+	}
+
+	/**
+	 * [forceRebootGuest reboot the vm]
+	 * @param  {[Number]} timeoutMs
+	 * @return {[promise]}
+	 */
+	async forceRebootGuest(timeoutMs) {
+		let start = Date.now()
+		let timeLeft = () => timeoutMs - (Date.now() - start)
+		try {
+			await this.shutdownGuest((timeoutMs/2)|0)
+		} catch (e) {
+			await this.powerOff(timeLeft())
+		}
+		
+		await this.powerOn(timeLeft())
+		await this.waitForVmTools(timeLeft())
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////
@@ -182,8 +212,7 @@ class VirtualMachine extends BaseMob {
 	//////////////////////////////////////////////////////////////////////////////////
 	async waitForVmTools(timeoutMs) {
 		let vim = this._service.vim
-		let ret = await this.waitState('summary.guest.toolsRunningStatus', vim.VirtualMachineToolsRunningStatus.guestToolsRunning.toString(), timeoutMs)
-		return ret
+		return this.waitState('summary.guest.toolsRunningStatus', vim.VirtualMachineToolsRunningStatus.guestToolsRunning.toString(), timeoutMs)
 	}
 
 	async installVmTools(timeoutMs) {
