@@ -5,11 +5,10 @@ const ProcessManager = require('./ProcessManager.js')
 const { delay, retry } = require('otherlib')
 
 class GuestManager {
-	constructor (vm, user, password, esxiAddress, options) {
+	constructor (vm, user, password, options) {
 		this.vm = vm
 		this.user = user
 		this.password = password
-		this.esxiAddress = esxiAddress
 		this.options = options
 	}
 
@@ -62,39 +61,41 @@ class GuestManager {
 		})
 	}
 
+	async shutdown(timeoutMs) {
+	}
+
 	/**
 	 * [reboot reboot the vm]
-	 * @param  {[Number]} timeoutMillis
-	 * @return {[Void]}
+	 * @param  {[Number]} timeoutMs
+	 * @return {[promise]}
 	 */
-	async reboot(timeoutMillis) {
-		timeoutMillis = timeoutMillis ? timeoutMillis : 5 * 60 * 1000
-		try {
-			let script = 'shutdown /r /t 15'
-			let ret = await this.runScriptInGuest(this.vm.getEsxiHost(), this.user, this.assword, script, 5 * 60 * 1000)
-			if (ret.exitCode !== 0) {
-				console.log('reboot vm script ret ', ret)
-				return Promise.reject(ret)
-			}
-
-			//wait
-			await delay(10000)
-
-			//get ip
-
-			let vmIP = await this.vm.getIPAddress()
-			const checkReboot = require('launchpad-commonlib').checkReboot
-
-			return new Promise((resolve, reject) => {
-				setTimeout(() => checkReboot.waitConnect(vmIP)
-					.then(resolve)
-					.catch(reject),
-				timeoutMillis)
-			})
-		} catch (err) {
-			console.error('reboot vm failed, error: ', err)
-			return Promise.reject(err)
+	async reboot(timeoutMs) {
+		
+		timeoutMs = timeoutMs ? timeoutMs : 5 * 60 * 1000
+		let cmd = 'C:\\Windows\\System32\\shutdown.exe'
+		let args = '/s /t 15'
+		let exitCode = await this.process().runAndWait(cmd, args, null, null, timeoutMs)
+		if (exitCode !== 0) {
+			console.log('reboot vm script ret ', exitCode)
+			return Promise.reject(exitCode)
 		}
+
+		//wait
+		await delay(30000)
+
+		//get ip
+
+		let vmIP = await this.vm.getIPAddress()
+		/*
+		const checkReboot = require('launchpad-commonlib').checkReboot
+
+		return new Promise((resolve, reject) => {
+			setTimeout(() => checkReboot.waitConnect(vmIP)
+				.then(resolve)
+				.catch(reject),
+			timeoutMs)
+		})
+		*/
 	}
 }
 

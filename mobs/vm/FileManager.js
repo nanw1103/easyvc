@@ -17,7 +17,6 @@ class FileManager {
 		this.options = options
 
 		Object.defineProperty(this, '_fileMgr', {value: null, writable: true})
-		this.esxiAddress = guest.esxiAddress		
 	}
 
 	_normalize(target) {
@@ -27,10 +26,10 @@ class FileManager {
 	}
 
 	log() {
-		if (this.options && this.options.log === false)
-			return
-		let text = `FileManager [${this.guest.vm.mor.value}] ` + util.format.apply(null, arguments)
-		console.log(text)
+		if (this.options && this.options.log) {
+			let text = `FileManager [${this.guest.vm.mor.value}] ` + util.format.apply(null, arguments)
+			console.log(text)
+		}
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////
@@ -44,11 +43,14 @@ class FileManager {
 
 		let impl = async () => {
 			
+			let esxiHost = await this.guest.vm.get('summary.runtime.host')
+			let esxiAddress = await esxiHost.get('name')
+
 			await this.mkdirp(folder)
 
-			this.log('Upload:', guestPath)
+			this.log(`Upload: ${guestPath}, host=${esxiAddress}`)
 			let url = await this._initiateFileTransferToGuest(guestPath, size)
-			url = url.replace('//*', '//' + this.esxiAddress)
+			url = url.replace('//*', '//' + esxiAddress)
 			let req = request.put({
 				url: url,
 				headers: {
@@ -71,7 +73,7 @@ class FileManager {
 		}
 
 		return retry(impl, {
-			name: `Upload guestPath=${guestPath} esxiHost=${this.esxiAddress}`,
+			name: `Upload guestPath=${guestPath}`,
 			filter: e => e.toString().includes('EHOSTUNREACH'),
 			retry: 2,			
 			intervalMs: 10000,
@@ -83,9 +85,13 @@ class FileManager {
 		guestPath = this._normalize(guestPath)
 
 		this.log('Download:', guestPath)
+
+		let esxiHost = await this.guest.vm.get('summary.runtime.host')
+		let esxiAddress = await esxiHost.get('name')
+
 		let info = await this._initiateFileTransferFromGuest(guestPath)
 		let url = info.url
-		url = url.replace('//*', '//' + this.esxiAddress)
+		url = url.replace('//*', '//' + esxiAddress)
 
 		return new Promise((resolve, reject) => {			
 			request(url)

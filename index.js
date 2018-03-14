@@ -49,6 +49,10 @@ class EasyVc {
 		this._redirectErrorToConsole && console.log.apply(arguments)
 	}
 
+	isVCenter() {
+		return this._serviceDirect().serviceContent.about.apiType === 'VirtualCenter'	//'HostAgent'
+	}
+
 	async _getProp(mor, name) {
 		let svc = await this._service()
 		let vimPort = svc.vimPort,
@@ -132,13 +136,6 @@ class EasyVc {
 		
 		return vimPort.retrieveProperties(propertyCollector, specs)
 	}
-
-	/*{"objects":[{"obj":{"value":"56c6d6d8-1698080f-fa1f-14187740f487","type":"Datast
-	ore"},"propSet":[{"name":"name","val":"HddStorage"}],"missingSet":[]},{"obj":{"v
-	alue":"56c6d6ee-563e81cb-8309-14187740f487","type":"Datastore"},"propSet":[{"nam
-	e":"name","val":"SsdStorage"}],"missingSet":[]},{"obj":{"value":"bj-group.eng.vm
-	ware.com:/g11nqabj/isoimages/OS","type":"Datastore"},"propSet":[{"name":"name","
-	val":"ISO"}],"missingSet":[]}]}*/
 
 	async getDatastores() {
 		let svc = await this._service()

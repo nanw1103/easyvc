@@ -10,10 +10,10 @@ class ProcessManager {
 	}
 
 	log() {
-		if (this.options && this.options.log === false)
-			return
-		let text = `ProcessManager [${this.guest.vm.mor.value}] ` + util.format.apply(null, arguments)
-		console.log(text)
+		if (this.options && this.options.log) {
+			let text = `ProcessManager [${this.guest.vm.mor.value}] ` + util.format.apply(null, arguments)
+			console.log(text)
+		}
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////
@@ -98,7 +98,7 @@ class ProcessManager {
 		return await this.waitForProcess(pid, timeoutMillis)
 	}
 
-	async runScript(scriptText, timeoutMillis) {
+	async runScript(scriptText, timeoutMs) {
 
 		let fileMgr = this.guest.file(this.options)
 
@@ -126,7 +126,7 @@ class ProcessManager {
 		await fileMgr.uploadText(scriptText, guestPath)
 
 		let envVars
-		let exitCode = await this.runAndWait(cmd, args, workingDir, envVars, timeoutMillis)
+		let exitCode = await this.runAndWait(cmd, args, workingDir, envVars, timeoutMs)
 		let ret = {
 			exitCode: exitCode
 		}

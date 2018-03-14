@@ -1,18 +1,17 @@
 # easyvc
-Easy wrapper for vSphere operations
 
-**Installation**
+Easy wrapper for vSphere operations.
 
-Due to some reason, one dependency **vsphere 1.0.0** is NOT published on NPM. First, you need to manually download it from:
+Only a small subset (growing) of vSphere APIs are available according to my actual need. 
 
-    https://labs.vmware.com/flings/vsphere-sdk-for-javascript
-    
-Create a directory named "vsphere" in your node_modules directory, then exact the archive and put files in the directory. Make sure the package.json is in the vsphere directory.
+Currently the basic VM guest operations are available:
 
-After that, do
+* Locate VM
+* Upload/download file to/from guest
+* Run script in guest
+* CD operations
+* Power operations
 
-```
-npm install easyvc
 ```
 
 **Usage**
@@ -30,7 +29,6 @@ process.on('unhandledRejection', (reason, p) => {
 const vcOrEsxiHost = '<your vc or esxi>'
 const user = '<vc user name>'
 const password = '<vc password>'
-const esxiAddress = '<ip of esxi on which the test VM is hosted>'
 
 const vmName = '<vm name>'
 const guestUser = '<vm os user name>'
@@ -41,16 +39,13 @@ const guestPwd = '<vm password>';
 	await easyvc.login(vcOrEsxiHost, user, password)	
 	console.log('logged in')
 	
-	let esxi = await easyvc.findHostByIp(esxiAddress)
-	console.log('esxi:', esxi.mor.value)
-
 	let vms = await easyvc.findVMsByName(vmName)
 	if (vms.length === 0)
 		throw 'VM not found: ' + vmName
 	let vm = vms[0]
 	console.log('vm:', vm.mor.value)
 	
-	let guest = await vm.guest(guestUser, guestPwd, esxiAddress, {log: false})
+	let guest = await vm.guest(guestUser, guestPwd, {log: false})
 	let fileMgr = guest.file()
 	let processMgr = guest.process()
 

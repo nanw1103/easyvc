@@ -32,10 +32,9 @@ async function test(vmName, guestUser, guestPwd) {
 	let esxi = await easyvc.findHostByIp(esxiAddress)
 	console.log('esxi:', esxi.mor.value)
 
-	let vms = await easyvc.findVMsByName(vmName)
-	if (vms.length === 0)
+	let vm = (await easyvc.findVMsByName(vmName))[0]
+	if (!vm)
 		throw 'VM not found: ' + vmName
-	let vm = vms[0]
 	console.log('vm:', vm.mor.value)
 	
 	/*
@@ -53,7 +52,7 @@ async function test(vmName, guestUser, guestPwd) {
 	//let config = await vm.get('config')
 	//console.log('config', config)
 
-	let guest = await vm.guest(guestUser, guestPwd, esxiAddress, {log: false})
+	let guest = await vm.guest(guestUser, guestPwd, {log: false})
 	let fileMgr = guest.file()
 	let processMgr = guest.process()
 
@@ -82,8 +81,12 @@ async function test(vmName, guestUser, guestPwd) {
 
 	//*
 	console.log('[test run script]')
-	let script = 'date /t\r\necho hello'
-	let result = await processMgr.runScript(script, 10000, 'myTestScript')
+	let script = 
+`
+date /t
+echo hello
+`
+	let result = await processMgr.runScript(script, 10000)
 	console.log(result.toString())
 	//*/
 

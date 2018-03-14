@@ -1,5 +1,5 @@
 const vsphere = require('vsphere')
-const dedupa = require('dedup-async')
+const { dedup } = require('otherlib')
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
@@ -12,7 +12,6 @@ class SessionManager {
 		return this.mapIpUserToService[host]
 	}
 	
-
 	dedupLogin() {
 		let host = this.host
 		let user = this.user
@@ -55,7 +54,7 @@ class SessionManager {
 		this.user = user
 		this.password = password
 
-		return dedupa(this.dedupLogin, this)					
+		return dedup(this.dedupLogin, this)					
 	}
 	
 	logout(host) {
