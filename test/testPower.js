@@ -1,4 +1,4 @@
-const easyvc = require('../index.js')()
+const easyvc = require('../lib/index.js')()
 const config = require('./config.js');
 
 (async function() {
