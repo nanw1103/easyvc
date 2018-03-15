@@ -42,7 +42,7 @@ const guestPwd = 'asdf';
 	console.log('[test upload/download]')
 	let fileMgr = guest.file()
 	let text = 'Hello, mortal'
-	let tempPath = fileMgr.tempPath()
+	let tempPath = await fileMgr.tempPath()
 	let target = tempPath + '/test.txt'	
 	await fileMgr.uploadText(text, target)
 	let downloaded = await fileMgr.downloadText(target)

@@ -45,7 +45,7 @@ async function test(vmName, guestUser, guestPwd) {
 
 	//*
 	console.log('[test mkdirp/delete]')
-	let tempPath = fileMgr.tempPath()
+	let tempPath = await fileMgr.tempPath()
 	await fileMgr.mkdirp(tempPath + '/asdf')
 	await fileMgr.delete(tempPath)
 	//*/
@@ -53,7 +53,7 @@ async function test(vmName, guestUser, guestPwd) {
 	//*
 	console.log('[test upload/download]')
 	let text = 'Hello, mortal\r\n'
-	tempPath = fileMgr.tempPath()
+	tempPath = await fileMgr.tempPath()
 	let target = tempPath + '/test.txt'
 	await fileMgr.uploadText(text, target)
 
