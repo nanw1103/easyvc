@@ -1,5 +1,5 @@
 const assert = require('assert')
-const easyvc = require('./index.js')()
+const easyvc = require('./lib/index.js')()
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0
 process.on('unhandledRejection', (reason, p) => {
@@ -34,7 +34,7 @@ const guestPwd = 'asdf';
 	let vmIp = await vm.get('summary.guest.ipAddress')
 	console.log(`The vm ${vmIp} is on ESXi ${esxiAddr}`)
 
-	let guest = await vm.guest(guestUser, guestPwd /*, {log: true}*/)
+	let guest = vm.guest(guestUser, guestPwd /*, {log: true}*/)
 	
 	//------------------------------------------------------------------------
 	//	File operations
