@@ -20,5 +20,10 @@ module.exports = {
 		name: 'UbuntuServer64',
 		user: 'asdf',
 		pwd: 'asdf'
-	}]
+	}],
+	esxi: {
+		host: '10.117.160.95',
+		user: 'root',
+		password: 'ca$hc0w'
+	}
 }

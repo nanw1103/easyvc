@@ -11,7 +11,7 @@ const config = require('./config.js');
 	for (let vm of config.vms) {
 		console.log(await test(vm.name, vm.user, vm.pwd))
 	}
-})().catch(err => console.error('ERROR:', err.toString()))
+})().catch(err => console.error('ERROR:', err))
 
 
 async function test(vmName, guestUser, guestPwd) {

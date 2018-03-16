@@ -1,34 +1,33 @@
 const easyvc = require('../lib/index.js')()
-const config = require('./config.js');
+const config = require('./config.js')
+const {delay} = require('otherlib')
 
-(async function() {
+let vmName = 'jumpbox'
+let guestUser = 'asdf'
+let guestPwd = 'asdf'
+;
 
-	await easyvc.login(config.vc.host, config.vc.user, config.vc.password)
+(async () => {
+
+	await easyvc.login(config.esxi.host, config.esxi.user, config.esxi.password)
 	console.log('logged in')
-	let esxi = await easyvc.findHostByIp(config.vc.esxi)
-	console.log('esxi:', esxi.mor.value)
 	
-	for (let vm of config.vms) {
-		console.log(await test(vm.name, vm.user, vm.pwd))
-	}
-})().catch(err => console.error('ERROR:', err))
-
-
-async function test(vmName, guestUser, guestPwd) {
-		
-	console.log(`Testing: vm=${vmName}`)	
-	
-	let vm = (await easyvc.findVMsByName(vmName))[0]
+	let vm = (await easyvc.findVMsByName('jumpbox'))[0]
 	if (!vm)
 		throw 'VM not found: ' + vmName
 	console.log('vm:', vm.mor.value)
+	
+	let esxiHost = await vm.get('summary.runtime.host')
+	console.log(esxiHost)
+	let esxiAddress = await esxiHost.get('name')
+	console.log(esxiAddress)
 	
 	//*
 	await vm.waitForVmTools(1000)
 	console.log('VM tools ready')
 	
-	let ips = await vm.getIPAddress()
-	console.log('ips', ips)
+	let ip = await vm.getIPAddress()
+	console.log('ip', ip)
 	//*/
 
 	//let runtime = await vm.get('runtime')
@@ -38,7 +37,7 @@ async function test(vmName, guestUser, guestPwd) {
 	//let config = await vm.get('config')
 	//console.log('config', config)
 
-	let guest = await vm.guest(guestUser, guestPwd, {log: false})
+	let guest = await vm.guest(guestUser, guestPwd, {log:true})
 	let fileMgr = guest.file()
 	let processMgr = guest.process()
 
@@ -57,6 +56,8 @@ async function test(vmName, guestUser, guestPwd) {
 	let target = tempPath + '/test.txt'
 	await fileMgr.uploadText(text, target)
 
+	await delay(5000)
+	
 	let downloadedText = await fileMgr.downloadText(target)
 	if (downloadedText !== text)
 		console.error('Test failed: upload/download mismatch')
@@ -76,8 +77,4 @@ echo hello
 	console.log(result.toString())
 	//*/
 
-	return 'DONE'
-}
-
-
-
+})().catch(err => console.error('ERROR:', err))

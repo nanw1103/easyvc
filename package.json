@@ -2,7 +2,7 @@
   "author": "nanw1103",
   "dependencies": {
     "vsphere": "https://download3.vmware.com/software/vmw-tools/vsphere-sdk-for-javascript/vsphere-1.1.0.tgz",
-    "otherlib": "^1.0.5",    
+    "otherlib": "^1.0.6",    
     "stream-buffers": "^3.0.1",
     "request": "^2.83.0"
   },
@@ -13,7 +13,7 @@
   "main": "lib/index.js",
   "name": "easyvc",
   "optionalDependencies": {},
-  "version": "0.0.14",
+  "version": "0.0.15",
   "scripts": {
     "test": "mocha"
   },
