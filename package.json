@@ -13,7 +13,7 @@
   "main": "lib/index.js",
   "name": "easyvc",
   "optionalDependencies": {},
-  "version": "0.0.17",
+  "version": "0.0.18",
   "scripts": {
     "test": "mocha"
   },
